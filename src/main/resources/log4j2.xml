@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" status="WARN" monitorInterval="30">
+    <!-- LEVEL : TRACE > DEBUG > INFO > WARN > ERROR > FATAL  -->
+    <!-- layout Doc https://logging.apache.org/log4j/2.x/manual/layouts.html
+        %d{yyyy-MM-dd HH:mm:ss} : 로그시간                  : 2022-02-16 14:06:09
+        %r, %relative : 로그 처리시간
+        %t, %thread : 로깅 이벤트를 발생시킨 스레드의 이름을 출력한다.  :  http-nio-8080-exec-10
+        %p, %level : log level                              : INFO, DEBUG
+        %5p        : 5자리 확보  (오른쪽정렬)                : " INFO"
+        %-5p       : 5자리 확보  (외쪽정렬)                  : " INFO"
+        %m, %msg   : 로그 메시지를 출력한다.
+        %c          : logger name 을 보여줌 사실상 classname 과 동일.
+        %C, %class  : class 이름을 보여준다.
+        %C          : full classname                       : com.powernote.skeleton.powernoteboard.service.PowerNoteBoardService
+        %C{1}       : class depth1                         : PowerNoteBoardService
+        %C{1.}       : class depth1                        : o.a.i.l.j.BaseJdbcLogger
+        %C{2}       : class depth1                         : service.PowerNoteBoardService
+        %M, %method  : 로깅이 발생한 메소드의 이름을 출력한다.         : myTransactionManager
+        %L, %line  :로깅이 발생한 호출지의 라인수를 출력한다. : 11
+        %F : 로깅이 발생한 프로그램의 파일명을 출력한다.       :  MyDataSourceConfig.java
+        %l, %location : 로깅이 발생한 호출지의 정보를 출력한다. : com.powernote.skeleton.acommon.controller.HelloController.Hello(HelloController.java:23)
+        %style{pattern}{ANSI style} : ANSI를 사용해 특정 패턴을 스타일링함
+        %highlight{pattern}{style} : 로그 레벨명을 ANSI 색깔로 하이라이트
+    -->
+   <!-- 변수 선언 -->
+    <Properties>
+        <Property name="LOG_PATH">/svc/demo</Property>
+        <Property name="DEFAULT_PATTERN">
+            %style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{cyan} %highlight{[%-5p]}{FATAL=bg_red, ERROR=red,INFO=green, DEBUG=blue} [%C{1.}] %style{[%t]}{yellow} - %m%n
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="${DEFAULT_PATTERN}"/>
+        </Console>
+
+        <!-- RollingFile 로그에 비해 장점이 있음 -->
+        <RollingRandomAccessFile name="LogAppender" fileName="${LOG_PATH}/app.log" filePattern="${LOG_PATH}/$${date:yyyy-MM}/app-%d{yyyy-MM-dd-HH}-%02i.log" immediateFlush="false" ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>${DEFAULT_PATTERN}</Pattern>
+            </PatternLayout>
+
+            <Policies>
+                <!-- yyyy-MM-dd-HH 파일명 시간단위임. interval 1은 1시간 간격 파일 생성.-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!-- 10MB 넘어 가면 index 넘버링 생성 _01.log -->
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <!--  파일 인덱스 넘버링 최대 10 -->
+            <DefaultRolloverStrategy max="10">
+                <!-- 삭제정책 maxDepth =1 : LOG_PATH폴더내, maxDepth =2 : LOG_PATH/날짜 폴더내 -->
+                <Delete basePath="${LOG_PATH}/" maxDepth="2">
+                    <IfFileName glob="*/app-*.log">
+                        <!-- 14일 이상 된 로그제거 -->
+                        <IfLastModified age="14d">
+                        </IfLastModified>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <!-- RollingFile 로그에 비해 장점이 있음 -->
+        <RollingRandomAccessFile name="ErrorAppender" fileName="${LOG_PATH}/logError.log" filePattern="${LOG_PATH}/logError-%d{yyyy-MM-dd-HH}_%02i.log" immediateFlush="false" ignoreExceptions="false">
+            <PatternLayout>
+                <Pattern>${DEFAULT_PATTERN}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10">
+                <Delete basePath="${LOG_PATH}/" maxDepth="2">
+                    <IfFileName glob="*/logError-*.log">
+                        <IfLastModified age="14d">
+                        </IfLastModified>
+                    </IfFileName>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <!-- Async 로그로 한번 감싸기 -->
+        <Async name="ASYNC_LogApp" includeLocation="true">
+            <AppenderRef ref="LogAppender"/>
+        </Async>
+
+        <Async name="ASYNC_ErrorApp" includeLocation="true">
+            <AppenderRef ref="ErrorAppender"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <!-- additivity="false" 는 상위 로그로 전이 되는것을 방지 -->
+        <Logger name="com.coinwork.base"  level="INFO">
+            <AppenderRef ref="ASYNC_LogApp"/>
+            <AppenderRef ref="ASYNC_ErrorApp" level="ERROR"/>
+        </Logger>
+
+<!--        <Logger name="com.coinwork.base.acommon.mapper" level="TRACE" additivity="false">-->
+<!--            <AppenderRef ref="ConsoleAppender"/>-->
+<!--        </Logger>-->
+
+<!--        <Logger name="com.coinwork.base.board.mapper" level="TRACE" additivity="false">-->
+<!--            <AppenderRef ref="ConsoleAppender"/>-->
+<!--        </Logger>-->
+
+        <!--Log4jdbc-->
+         <Logger name="jdbc" level="OFF" additivity="false"> 
+             <AppenderRef ref="ConsoleAppender"/> 
+         </Logger> 
+         <Logger name="jdbc.connection" level="OFF" additivity="false"> 
+             <AppenderRef ref="ConsoleAppender"/> 
+         </Logger> 
+         <Logger name="jdbc.sqlonly" level="INFO" additivity="false"> 
+             <AppenderRef ref="ConsoleAppender"/> 
+         </Logger> 
+<!--        <Logger name="jdbc.sqltiming" level="OFF" additivity="false">-->
+<!--            <AppenderRef ref="ConsoleAppender"/>-->
+<!--        </Logger>-->
+            <!-- <Logger name="jdbc.audit" level="OFF" additivity="false"> 
+                <AppenderRef ref="ConsoleAppender"/> 
+            </Logger> -->
+<!--        <Logger name="jdbc.resultset" level="OFF" additivity="false">-->
+<!--            <AppenderRef ref="ConsoleAppender"/>-->
+<!--        </Logger>-->
+        <Logger name="jdbc.resultsettable" level="INFO" additivity="false"> 
+             <AppenderRef ref="ConsoleAppender"/> 
+        </Logger> 
+
+        <Root level="INFO">
+            <AppenderRef ref="ConsoleAppender"/> 
+        </Root>
+
+    </Loggers>
+</Configuration>

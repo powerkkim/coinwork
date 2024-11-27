@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="com.coinwork.base.board.mapper.BoardMapper">
+<!--    <resultMap id="resBoardItemVo" type="com.coinwork.base.board.model.BoardItemVo">-->
+<!--        <result column="BOARD_NO" property="no" />-->
+<!--        <result column="TITLE" property="title" />-->
+<!--        <result column="CONTENT" property="content" />-->
+<!--        <result column="CREATE_DATE" property="createDate" />-->
+<!--        <result column="NICK_NAME" property="createUserName" />-->
+<!--        <result column="LINK_CNT" property="likeCnt" />-->
+<!--    </resultMap>-->
+
+    <select id="findAllCount" resultType="Integer">
+        select
+        count(*)
+        from TB_BOARD
+        where DELETE_YN = 'N'
+    </select>
+
+    <select id="findAll" parameterType="com.coinwork.base.acommon.model.RequestList" resultType="com.coinwork.base.board.model.BoardItemVo">
+        <!--        oracle 12 이후 -->
+        /* BoardMapper.findAll */
+        select
+            ID as NO,
+            TITLE,
+            CONTENT,
+            CREATE_DATE,
+            NICK_NAME AS CREATE_USER_NAME,
+            CREATE_USER,
+            LIKE_CNT
+        from TB_BOARD
+        where DELETE_YN = 'N'
+        order by CREATE_DATE desc
+        OFFSET #{pageable.offset} ROWS FETCH NEXT #{pageable.pageSize} ROWS ONLY
+    </select>
+
+    <select id="findById"  resultType="com.coinwork.base.board.model.BoardItemVo">
+        /* BoardMapper.findById */
+        select
+            ID as NO,
+            TITLE,
+            CONTENT,
+            CREATE_DATE,
+            NICK_NAME AS CREATE_USER_NAME,
+            CREATE_USER,
+            LIKE_CNT
+        from TB_BOARD
+        where DELETE_YN = 'N'
+          AND id = #{id}
+    </select>
+
+    <insert id="save"  parameterType="com.coinwork.base.board.model.BoardItemVo" >
+        /* BoardMapper.save */
+        <selectKey  resultType="STRING" keyProperty="no" order="BEFORE">
+            <![CDATA[
+				SELECT
+					NVL( ( select ID from TB_BOARD where ID = #{no} ), ( ISEQ$$_232931.NEXTVAL ) ) AS no
+				FROM
+					DUAL
+		    ]]>
+        </selectKey>
+        <![CDATA[
+            MERGE INTO TB_BOARD A
+                USING dual ON (A.ID = #{no})
+            WHEN MATCHED THEN
+                UPDATE
+                    SET A.UPDATE_DATE = SYSDATE
+                    ,A.UPDATE_USER = #{createUser}
+                    ,A.TITLE = #{title}
+                    ,A.CONTENT = #{content}
+            WHEN NOT MATCHED THEN
+                INSERT ( A.ID, A.DELETE_YN,A.CREATE_DATE,A.CREATE_USER,A.NICK_NAME,A.TITLE,A.CONTENT,A.LIKE_CNT)
+                VALUES ( #{no}, 'N',SYSDATE,#{createUser},#{createUserName},#{title},#{content},0)
+        ]]>
+    </insert>
+</mapper>

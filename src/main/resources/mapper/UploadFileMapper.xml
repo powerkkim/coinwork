@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="com.coinwork.base.acommon.files.mapper.UploadFileMapper">
+
+    <insert id="save" parameterType="com.coinwork.base.acommon.files.vo.AttachFileVo">
+        /* UploadFileMapper.save */
+        insert into TB_UPLOAD_FILE
+        ( FILE_NAME, FILE_EXT, FILE_SIZE, FILE_TYPE, FILE_TARGET_PATH, FILE_TARGET_NAME, REF_TYPE, REF_ID, CREATE_DATE, CREATE_USER )
+        values (
+            #{fileName},
+            #{fileExt},
+            #{fileSize},
+            #{fileType},
+            #{fileTargetPath},
+            #{fileTargetName},
+            #{refType},
+            #{refId},
+            SYSDATE,
+            #{userNo}
+        )
+    </insert>
+
+    <select id="findByRef"  resultType="com.coinwork.base.acommon.files.vo.AttachFileVo">
+        /* UploadFileMapper.findByRef */
+        SELECT
+            ID,
+            DELETE_YN,
+            CREATE_DATE,
+            UPDATE_DATE,
+            CREATE_USER as USER_NO,
+            FILE_NAME,
+            FILE_EXT,
+            FILE_SIZE,
+            FILE_TYPE,
+            FILE_TARGET_PATH,
+            FILE_TARGET_NAME,
+            REF_TYPE,
+            REF_ID
+        FROM TB_UPLOAD_FILE
+        WHERE REF_TYPE = #{refType} AND REF_ID = #{refId}
+          AND DELETE_YN = 'N'
+    </select>
+
+    <update id="deleteList" >
+        /* BoardFileMapper.deleteList */
+        UPDATE TB_UPLOAD_FILE
+           SET DELETE_YN = 'Y',
+               UPDATE_DATE = SYSDATE,
+               UPDATE_USER = #{userNo}
+        WHERE 1=1
+            AND REF_TYPE = #{refType}
+            AND REF_ID = #{refId}
+            AND ID in
+            <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+                 #{item.id}
+            </foreach>
+    </update>
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="com.coinwork.base.acommon.mapper.AuthMapper">
+
+    <select id="findById" parameterType="String" resultType="com.coinwork.base.acommon.security.vo.UserVo">
+        /* AuthMapper.findById */
+        select * from TB_USER
+        where EMAIL = #{email}
+    </select>
+
+    <select id="isJoinCheck" parameterType="com.coinwork.base.acommon.model.ReqUserJoin" resultType="com.coinwork.base.acommon.security.vo.UserVo">
+        /* AuthMapper.isJoinCheck */
+        select * from TB_USER
+        where EMAIL = #{user.email} OR NICK_NAME = #{user.nickName}
+    </select>
+
+    <insert id="saveUser" parameterType="com.coinwork.base.acommon.model.ReqUserJoin">
+        /* AuthMapper.saveUser */
+        insert into TB_USER
+             ( CREATE_DATE, UPDATE_DATE, CREATE_USER, UPDATE_USER, USER_NO, EMAIL, PASSWD, USER_NAME, NICK_NAME, PROFILE_IMG, TEL_NUMBER, ROLES, PASSFAIL_CNT, PASSWDRESET_DATE)
+        values
+            ( SYSDATE, SYSDATE
+            , 'ADMIN', '', (select 'U' || MAX(TO_NUMBER(REGEXP_REPLACE(USER_NO, '[^0-9]'))+1) from TB_USER)
+            , #{user.email}, #{user.passwd}, #{user.userName}, #{user.nickName}, #{user.profileImg}, #{user.telNumber}, 'USER', 0, SYSDATE )
+    </insert>
+
+
+</mapper>

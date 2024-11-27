@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    url: connection정보 입력
+    username: 계정입력
+    password: 비밀번호입력
+    driver-class-name: oracle.jdbc.OracleDriver
+    hikari:
+      connection-timeout: 3000
+      validation-timeout: 3000
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 200000
+      max-lifetime: 240000
+      pool-name: oraPool
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    cache: true
+    suffix: .html
+
+  security:
+    filter:
+      order: 5  # security Filter Chan이전에 필터를 등록 가능하도록 order를 뒤로 늦춘다.
+
+
+server:
+  port: 9080  # Spring boot Server port
+  error:
+    whitelabel:
+      enabled: true           # 화이트 라벨 페이지 유무 (default : true)
+    include-stacktrace: NEVER # 오류 응답에 stacktrace 내용을 포함할 지 여부 (default : always)
+    path: /error
+#  ssl:
+#    enabled: true
+#    key-store: classpath:devkeystore.pkcs12
+#    key-store-password: 123456
+#    key-store-type: PKCS12
+#    key-alias: devkeystore
+
+api-key: 12345
+
+api-server:
+  api-key: '12345'
+  jwt:
+    secret: 12345
+    expiration: 100  # 100초
+    ref_expiration: 1000  # 1000초
