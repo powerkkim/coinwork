@@ -76,7 +76,17 @@ public class SecurityConfig  {
     @Bean
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
-                .requestMatchers("/hello") ;
+                .requestMatchers(
+                    "/",
+                    "/static/**",           // 정적 리소스
+                    "/assets/**",           // 정적 리소스
+                    "/hello", 
+                    "/*.html",              // HTML 파일
+                    "/*.js",
+                    "/*.css",
+                    "/error",
+                    "/favicon.ico"
+                ) ;
     }
 
     @Bean
