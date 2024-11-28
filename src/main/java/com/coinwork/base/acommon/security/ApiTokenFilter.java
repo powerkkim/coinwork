@@ -34,6 +34,7 @@ public class ApiTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
             // 기본키가 없는 경우.
             String apiKey = request.getHeader("X-API-KEY");
             if ( !StringUtils.hasLength( apiKey ) || !API_KEY.equals( apiKey ) ) {
@@ -57,6 +58,7 @@ public class ApiTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.info("TOKEN PASS");
             }
+
             filterChain.doFilter(request, response);
     }
 

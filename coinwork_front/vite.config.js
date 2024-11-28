@@ -1,15 +1,21 @@
 import { fileURLToPath, URL } from 'node:url';
 
+import { PrimeVueResolver } from '@primevue/auto-import-resolver';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import vueDevTools from 'vite-plugin-vue-devtools';
+import Components from 'unplugin-vue-components/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ /*command,*/ mode }) => {
 	const config = {
-		plugins: [vue(), vueDevTools()],
-		base: '/', // ì •ì  URL ë‚´ ì‚¬ì´íŠ¸ì˜ ì—¬ê¸°ì„œ BASE_URLì„ ì„¤ì •í•©ë‹ˆë‹¤.
-		// base: '/my-app/', // ì—¬ê¸°ì„œ BASE_URLì„ ì„¤ì •í•©ë‹ˆë‹¤.
+		plugins: [
+			vue(),
+			Components({
+				resolvers: [PrimeVueResolver()],
+			}),
+		],
+		base: '/', // Á¤Àû URL ³» »çÀÌÆ®ÀÇ ¿©±â¼­ BASE_URLÀ» ¼³Á¤ÇÕ´Ï´Ù.
+		// base: '/my-app/', // ¿©±â¼­ BASE_URLÀ» ¼³Á¤ÇÕ´Ï´Ù.
 		resolve: {
 			alias: {
 				'@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -18,25 +24,23 @@ export default defineConfig(({ /*command,*/ mode }) => {
 		// server: {
 		// 	port: 8080,
 		// },
-		server: {
-			proxy: {
-				'/freetestapi': {
-					target: 'https://freetestapi.com',
-					changeOrigin: true,
-					secure: false,
-					rewrite: (path) => path.replace(/^\/freetestapi/, ''),
+		build: {
+			outDir: '../src/main/resources/static/', // static Æú´õ ¾ÈÀÇ dist µğ·ºÅä¸®¿¡ ºôµå
+			emptyOutDir: true, // ºôµå Àü Ãâ·Â µğ·ºÅä¸®¸¦ ºñ¿ò
+		},
+		css: {
+			preprocessorOptions: {
+				scss: {
+					// »õ·Î¿î Sass ¸ğµâ API »ç¿ë
+					additionalData: `@use "sass:math";`,
 				},
 			},
-		},
-		build: {
-			outDir: '../src/main/resources/static/', // static í´ë” ì•ˆì˜ dist ë””ë ‰í† ë¦¬ì— ë¹Œë“œ
-			emptyOutDir: true, // ë¹Œë“œ ì „ ì¶œë ¥ ë””ë ‰í† ë¦¬ë¥¼ ë¹„ì›€
 		},
 	};
 
 	if (mode === 'development') {
-		config.build.sourcemap = true; // ê°œë°œí™˜ê²½ì—ì„œ ì†ŒìŠ¤ë§µ ìƒì„±
-		config.build.minify = false; // ê°œë°œí™˜ê²½ì—ì„œëŠ” ë¯¸ë‹ˆíŒŒì´ ë¹„í™œì„±í™”
+		config.build.sourcemap = true; // °³¹ßÈ¯°æ¿¡¼­ ¼Ò½º¸Ê »ı¼º
+		config.build.minify = false; // °³¹ßÈ¯°æ¿¡¼­´Â ¹Ì´ÏÆÄÀÌ ºñÈ°¼ºÈ­
 	}
 
 	return config;

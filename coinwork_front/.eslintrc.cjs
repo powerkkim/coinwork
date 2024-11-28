@@ -12,6 +12,14 @@ module.exports = {
 		ecmaVersion: 'latest',
 	},
 	rules: {
+		'vue/multi-word-component-names': 'off',
+		'vue/no-reserved-component-names': 'off',
+		'vue/component-tags-order': [
+			'error',
+			{
+				order: ['script', 'template', 'style'],
+			},
+		],
 		'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
 		// prettier 설정 적용
 		'prettier/prettier': [
@@ -23,6 +31,7 @@ module.exports = {
 				tabWidth: 2,
 				trailingComma: 'all',
 				printWidth: 80,
+				vueIndentScriptAndStyle: false,
 				bracketSpacing: true,
 				arrowParens: 'always',
 				endOfLine: 'auto',

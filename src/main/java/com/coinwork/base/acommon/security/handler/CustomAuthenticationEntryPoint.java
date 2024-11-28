@@ -19,11 +19,15 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)throws IOException, ServletException {
         // 에러 페이지에 대한 확장자를 현재 호출한 확장자와 마추어준다.
-
+        log.info("CustomAuthenticationEntryPoint ## 1");
         log.info(" CustomAuthenticationEntryPoint Exceiption : {}",authException);
+        log.info("CustomAuthenticationEntryPoint #### 2");
         log.info("CustomAuthenticationEntryPoint LocalizedMessage : {}",authException.getLocalizedMessage());
+        log.info("CustomAuthenticationEntryPoint #### 3");
         log.info("CustomAuthenticationEntryPoint Message : {}",authException.getMessage());
-        authException.getStackTrace();
+
+        log.info("CustomAuthenticationEntryPoint #### 4");
+        // authException.getStackTrace();
 //        log.info("CustomAuthenticationEntryPoint StackTrace : {}", authException.getStackTrace().toString());
 
 //        response.setStatus( HttpStatus.UNAUTHORIZED.value() );

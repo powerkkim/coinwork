@@ -1,3 +1,4 @@
+// src/apis/index.js
 import axios from 'axios';
 import { setInterceptors } from '@/apis/common/interceptors';
 
@@ -8,7 +9,6 @@ const createInstance = () => {
 		baseURL: import.meta.env.VITE_API_BASE_URL, // 기본 URL 설정
 		timeout: 3000, // 요청 제한 시간 설정
 	});
-
 	return setInterceptors(instance);
 };
 
